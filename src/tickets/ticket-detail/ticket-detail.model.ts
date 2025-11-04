@@ -1,6 +1,15 @@
 // src/tickets/ticket-detail/ticket-detail.model.ts
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  ForeignKey,
+  BelongsTo,
+  HasOne,
+} from 'sequelize-typescript';
 import { OrderTransaction } from '../../order-transaction/order-transaction.model';
+import { Checkin } from '../../checkin/checkin.model';
 
 interface TicketDetailAttributes {
   id: number;
@@ -16,13 +25,17 @@ interface TicketDetailAttributes {
 }
 
 // biar Sequelize tau field mana yg optional
-export interface TicketDetailCreationAttributes extends Omit<TicketDetailAttributes, 'id'> {}
+export interface TicketDetailCreationAttributes
+  extends Omit<TicketDetailAttributes, 'id'> {}
 
 @Table({
   tableName: 'ticket_details',
   timestamps: false,
 })
-export class TicketDetail extends Model<TicketDetailAttributes, TicketDetailCreationAttributes> {
+export class TicketDetail extends Model<
+  TicketDetailAttributes,
+  TicketDetailCreationAttributes
+> {
   @Column({
     type: DataType.INTEGER,
     autoIncrement: true,
@@ -88,6 +101,6 @@ export class TicketDetail extends Model<TicketDetailAttributes, TicketDetailCrea
   @BelongsTo(() => OrderTransaction)
   order: OrderTransaction;
 
-  // @HasMany(() => Checkin)
-  // checkins: Checkin[];
+  @HasOne(() => Checkin)
+  checkin: Checkin;
 }

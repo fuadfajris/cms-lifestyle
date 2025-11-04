@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { TicketDetail } from './ticket-detail.model';
 import { OrderTransaction } from '../../order-transaction/order-transaction.model';
 import { Ticket } from '../ticket.model';
+import { Checkin } from '../../checkin/checkin.model';
 
 @Injectable()
 export class TicketDetailService {
@@ -30,10 +31,10 @@ export class TicketDetailService {
             },
           ],
         },
-        // {
-        //   model: Checkin,
-        //   attributes: ['id', 'checked_in_at'],
-        // },
+        {
+          model: Checkin,
+          attributes: ['id', 'checked_in_at'],
+        },
       ],
     });
   }

@@ -1,11 +1,21 @@
-import { Controller, Post, Body, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
 import { OrderTransactionsService } from './order-transactions.service';
 import { OrderTransaction } from './order-transaction.model';
 import { Public } from 'src/common/decorators/public.decorators';
 
 @Controller('order-transactions')
 export class OrderTransactionsController {
-  constructor(private readonly orderTransactionsService: OrderTransactionsService) {}
+  constructor(
+    private readonly orderTransactionsService: OrderTransactionsService,
+  ) {}
 
   @Public()
   @Post()
@@ -19,7 +29,17 @@ export class OrderTransactionsController {
   }
 
   @Get('order')
-  async getOrders(@Query('event_id') eventId: number) {
-    return this.orderTransactionsService.getOrdersByEventV2(eventId);
+  async getOrders(
+    @Query('event_id') eventId: number,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('search') search?: string,
+  ) {
+    return this.orderTransactionsService.getOrdersByEventV2(
+      eventId,
+      page,
+      limit,
+      search
+    );
   }
 }
