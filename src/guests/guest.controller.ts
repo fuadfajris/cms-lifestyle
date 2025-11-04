@@ -25,6 +25,11 @@ export class GuestsController {
     return this.guestsService.fetchLineup(Number(eventId));
   }
 
+  @Get('lineup/:guestScheduleId/detail')
+  async getDetail(@Param('guestScheduleId', ParseIntPipe) guestScheduleId: number) {
+    return this.guestsService.fetchDetailLineUp(Number(guestScheduleId));
+  }
+
   @Post('lineup')
   async create(@Body() dto: CreateGuestScheduleDto) {
     return this.guestsService.createSchedule(dto);

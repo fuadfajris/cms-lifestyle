@@ -27,6 +27,17 @@ export class GuestsService {
     return this.guestModel.findAll();
   }
 
+  async fetchDetailLineUp(guestScheduleId: number) {
+    return this.guestScheduleModel.findByPk(guestScheduleId, {
+      include: [
+        {
+          model: Guest,
+          as: 'guest',
+        },
+      ],
+    });
+  }
+
   async fetchLineup(eventId: number) {
     return this.guestScheduleModel.findAll({
       where: { event_id: eventId },
@@ -67,7 +78,6 @@ export class GuestsService {
 
   async deleteSchedule(id: number): Promise<{ message: string }> {
     const schedule = await this.guestScheduleModel.findByPk(id);
-    console.log("schedule : ", schedule)
     if (!schedule) {
       throw new NotFoundException(`Guest schedule with ID ${id} not found`);
     }
