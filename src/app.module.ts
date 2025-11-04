@@ -13,6 +13,9 @@ import { MerchantsModule } from './merchants/merchants.module';
 import { TemplatesModule } from './templates/templates.module';
 import { FeaturesModule } from './features/features.module';
 import { CheckinModule } from './checkin/checkin.module';
+import { RolesModule } from './roles/roles.module';
+import { MerchantUsersModule } from './merchant-users/merchant-users.module';
+import { ActivityModule } from './activity/activity.module';
 
 @Module({
   imports: [
@@ -43,7 +46,10 @@ import { CheckinModule } from './checkin/checkin.module';
     MerchantsModule,
     TemplatesModule,
     FeaturesModule,
-    CheckinModule
+    CheckinModule,
+    RolesModule,
+    MerchantUsersModule,
+    ActivityModule
   ],
 })
 export class AppModule {

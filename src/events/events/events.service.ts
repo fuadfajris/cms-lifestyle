@@ -2,8 +2,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Event } from './event.model';
-import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
+import { EventDto } from './dto/event.dto';
+import { Op } from 'sequelize';
+
+interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  perPage: number;
+  totalPages: number;
+}
 
 @Injectable()
 export class EventsService {
@@ -22,37 +30,95 @@ export class EventsService {
     return event;
   }
 
-  async findAllByMerchant(merchantId: number): Promise<Event[]> {
-    return this.eventModel.findAll({
-      where: { merchant_id: merchantId },
+  // async findAllByMerchant(
+  //   merchantId: number,
+  //   page = 1,
+  //   perPage = 10,
+  //   search?: string, // ✨ parameter search
+  // ): Promise<PaginatedResult<Event>> {
+  //   const offset = (page - 1) * perPage;
+
+  //   const whereClause: any = {
+  //     merchant_id: merchantId,
+  //   };
+
+  //   if (search) {
+  //     whereClause.name = { [Op.iLike]: `%${search}%` };
+  //   }
+
+  //   const { rows, count } = await this.eventModel.findAndCountAll({
+  //     where: whereClause,
+  //     order: [['id', 'ASC']],
+  //     limit: perPage,
+  //     offset,
+  //   });
+
+  //   return {
+  //     data: rows,
+  //     total: count,
+  //     page,
+  //     perPage,
+  //     totalPages: Math.ceil(count / perPage),
+  //   };
+  // }
+
+  async findAllByMerchant(
+    merchantId: number,
+    page = 1,
+    perPage = 10,
+    search?: string,
+  ): Promise<PaginatedResult<Event>> {
+    const offset = (page - 1) * perPage;
+
+    const whereClause: any = { merchant_id: merchantId };
+
+    if (search) {
+      whereClause.name = { [Op.iLike]: `%${search}%` };
+    }
+
+    const queryOptions: any = {
+      where: whereClause,
       order: [['id', 'ASC']],
-    });
+    };
+
+    // ⚡ Jika perPage bukan 0, baru terapkan pagination
+    if (perPage !== 0) {
+      queryOptions.limit = perPage;
+      queryOptions.offset = offset;
+    }
+
+    const { rows, count } = await this.eventModel.findAndCountAll(queryOptions);
+
+    return {
+      data: rows,
+      total: count,
+      page,
+      perPage,
+      totalPages: perPage === 0 ? 1 : Math.ceil(count / perPage),
+    };
   }
 
-  async createEvent(createEventDto: CreateEventDto): Promise<Event> {
+  async createEvent(eventDto: EventDto): Promise<Event> {
     const eventData = {
-      merchant_id: createEventDto.merchant_id,
-      name: createEventDto.name,
-      description: createEventDto.description,
-      location: createEventDto.location,
-      capacity: createEventDto.capacity,
-      status: createEventDto.status,
-      start_date: createEventDto.start_date
-        ? new Date(createEventDto.start_date)
+      merchant_id: eventDto.merchant_id,
+      name: eventDto.name,
+      description: eventDto.description,
+      location: eventDto.location,
+      capacity: eventDto.capacity,
+      status: eventDto.status,
+      start_date: eventDto.start_date
+        ? new Date(eventDto.start_date)
         : undefined,
-      end_date: createEventDto.end_date
-        ? new Date(createEventDto.end_date)
-        : undefined,
-      image_venue: createEventDto.image_venue,
+      end_date: eventDto.end_date ? new Date(eventDto.end_date) : undefined,
+      image_venue: eventDto.image_venue,
+      hero_image: eventDto.hero_image,
+      template_id: eventDto.template_id,
     };
 
     return this.eventModel.create(eventData);
   }
 
-  async updateEvent(
-    id: number,
-    updateEventDto: UpdateEventDto,
-  ): Promise<Event> {
+  async updateEvent(id: number, eventDto: EventDto): Promise<Event> {
     const event = await this.eventModel.findByPk(id);
 
     if (!event) {
@@ -60,12 +126,12 @@ export class EventsService {
     }
 
     await event.update({
-      ...updateEventDto,
-      start_date: updateEventDto.start_date
-        ? new Date(updateEventDto.start_date)
+      ...eventDto,
+      start_date: eventDto.start_date
+        ? new Date(eventDto.start_date)
         : event.start_date,
-      end_date: updateEventDto.end_date
-        ? new Date(updateEventDto.end_date)
+      end_date: eventDto.end_date
+        ? new Date(eventDto.end_date)
         : event.end_date,
     });
 
